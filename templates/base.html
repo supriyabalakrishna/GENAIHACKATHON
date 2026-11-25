@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}EduCite{% endblock %}</title><link rel="stylesheet" href="/static/css/styles.css"></head>
+<body>{% from 'components/macros.html' import badge,stat,empty %}
+<div class="app-shell">
+<aside class="sidebar"><a class="sidebar-brand" href="/{{ user.role }}/dashboard"><span class="brand-mark small">✓</span><strong>EduCite</strong></a>
+<nav>{% if user.role=='teacher' %}
+<a href="/teacher/dashboard" class="{{ 'active' if request.url.path.startswith('/teacher/dashboard') }}">Dashboard</a>
+<a href="/teacher/documents" class="{{ 'active' if request.url.path.startswith('/teacher/documents') }}">Documents</a>
+<a href="/teacher/questions" class="{{ 'active' if request.url.path.startswith('/teacher/questions') }}">Questions</a>
+<a href="/teacher/reports" class="{{ 'active' if request.url.path.startswith('/teacher/reports') }}">Reports</a>
+<a href="/teacher/students" class="{{ 'active' if request.url.path.startswith('/teacher/students') }}">Students</a>
+{% else %}
+<a href="/student/dashboard" class="{{ 'active' if request.url.path.startswith('/student/dashboard') }}">Dashboard</a>
+<a href="/student/assignments" class="{{ 'active' if request.url.path.startswith('/student/assignments') }}">My Assignments</a>
+<a href="/student/results" class="{{ 'active' if request.url.path.startswith('/student/results') }}">My Results</a>
+{% endif %}</nav>
+<form method="post" action="/logout" class="logout"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button>Logout</button></form></aside>
+<main class="main"><header class="topbar"><div><h1>{% block page_title %}{% endblock %}</h1><p>{% block subtitle %}{% endblock %}</p></div><div class="top-actions">{% if user.role=='teacher' %}<span class="ollama" id="ollama-status" hx-get="/teacher/ollama-status" hx-trigger="load, every 30s" hx-swap="outerHTML">Checking Ollama…</span>{% endif %}<div class="user-chip"><span>{{ user.name[0] }}</span><div><strong>{{ user.name }}</strong><small>{{ user.role|title }}</small></div></div></div></header>
+<div class="content">{% block content %}{% endblock %}</div></main></div>
+<script src="/static/js/htmx.min.js"></script><script src="/static/js/app.js"></script></body></html>

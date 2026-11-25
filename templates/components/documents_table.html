@@ -1,0 +1,33 @@
+{% from 'components/macros.html' import badge, empty %}
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Filename</th><th>Type</th><th>Location</th><th>Chunks</th><th>Uploaded</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>
+      {% for d in documents %}
+      <tr>
+        <td><strong>{{ d.filename }}</strong></td>
+        <td>{{ d.file_type|upper }}</td>
+        <td>{{ d.page_count if d.page_count else 'n/a' }}</td>
+        <td>{{ d.chunk_count or 0 }}</td>
+        <td>{{ d.uploaded_at.strftime('%d %b %Y') }}</td>
+        <td>
+          {{ badge(d.indexing_status) }}
+          {% if d.error_message %}<small class="error-text">{{ d.error_message }}</small>{% endif %}
+        </td>
+        <td class="action-cell">
+          <form method="post" action="/teacher/documents/{{ d.id }}/reindex">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <button class="link-button" type="submit" {% if d.indexing_status.startswith('Indexing') %}disabled{% endif %}>Re-index</button>
+          </form>
+          <form method="post" action="/teacher/documents/{{ d.id }}/delete" onsubmit="return confirm('Delete this document and its indexed passages?')">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <button class="link-button danger" type="submit">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="7">{{ empty('No documents uploaded','Upload reading material to begin creating assignments.') }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>

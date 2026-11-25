@@ -1,0 +1,25 @@
+{% from 'components/macros.html' import badge, empty %}
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Assignment</th><th>Question</th><th>Status</th><th>Marks</th><th></th></tr></thead>
+    <tbody>
+    {% for row in rows %}
+    <tr>
+      <td>{{ row.question.assignment.title }}</td>
+      <td>{{ row.question.question_text }}</td>
+      {% if row.grade and row.grade.released_to_student %}
+        <td>{{ badge('Released') }}</td>
+        <td><strong>{{ row.grade.teacher_marks if row.grade.teacher_marks is not none else row.grade.ai_marks }} / {{ row.grade.max_marks }}</strong></td>
+        <td><a class="primary small-btn" href="/student/results/{{ row.submission.id }}">View report</a></td>
+      {% elif row.grade %}
+        <td>{{ badge('Awaiting release') }}</td><td>—</td><td>Not yet available</td>
+      {% else %}
+        <td>{{ badge(row.submission.audit_status|replace('_',' ')|title) }}</td><td>—</td><td>Not yet available</td>
+      {% endif %}
+    </tr>
+    {% else %}
+    <tr><td colspan="5">{{ empty('No results yet','Submissions and released reports will appear here.') }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>

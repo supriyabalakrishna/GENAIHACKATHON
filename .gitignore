@@ -1,0 +1,38 @@
+.env
+__pycache__/
+.pytest_cache/
+data/app.db
+data/uploads/*
+data/chroma/*
+# Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Node.js
+node_modules/
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+
+# Local databases
+*.db
+*.sqlite3
+
+# Logs
+*.log
+
+# Ollama model files
+*.gguf
+*.safetensors

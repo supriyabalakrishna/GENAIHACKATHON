@@ -1,0 +1,22 @@
+{% from 'components/macros.html' import badge, empty %}
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Student</th><th>Assignment / Question</th><th>Answer preview</th><th>Status</th><th>AI marks</th><th>Review</th><th>Release</th><th></th></tr></thead>
+    <tbody>
+    {% for row in rows %}
+    <tr>
+      <td><a href="/teacher/reports/{{ row.submission.id }}">{{ row.student.name if row.student else 'Unknown student' }}</a></td>
+      <td><strong>{{ row.assignment.title if row.assignment else 'Unknown assignment' }}</strong><br><small>{{ row.question.question_text if row.question else '' }}</small></td>
+      <td>{{ row.submission.answer_text[:120] }}{% if row.submission.answer_text|length > 120 %}…{% endif %}</td>
+      <td>{{ badge(row.submission.audit_status|replace('_',' ')|title) }}{% if row.submission.error_message %}<small class="error-text">{{ row.submission.error_message }}</small>{% endif %}</td>
+      <td>{% if row.grade %}{{ row.grade.ai_marks }} / {{ row.grade.max_marks }}{% else %}—{% endif %}</td>
+      <td>{{ badge('Needs review' if row.flagged else 'No flag') }}</td>
+      <td>{{ badge('Released' if row.grade and row.grade.released_to_student else 'Awaiting release') if row.grade else '—' }}</td>
+      <td><a class="primary small-btn" href="/teacher/reports/{{ row.submission.id }}">Open report</a></td>
+    </tr>
+    {% else %}
+    <tr><td colspan="8">{{ empty('No submissions yet','Student answers will appear here after submission.') }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>

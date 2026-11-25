@@ -1,0 +1,31 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EduCite Login</title><link rel="stylesheet" href="/static/css/styles.css"></head>
+<body class="login-body">
+<main class="login-shell">
+  <section class="brand-panel">
+    <div class="brand-logo"><span class="brand-mark">✓</span><strong>EduCite</strong></div>
+    <div class="brand-copy">
+      <svg class="book-art" viewBox="0 0 240 180" aria-hidden="true"><path d="M32 42c40-18 69 4 88 23 19-19 48-41 88-23v112c-40-13-69 3-88 22-19-19-48-35-88-22z"/><path d="M120 65v111M58 77c24-4 43 7 62 24M182 77c-24-4-43 7-62 24"/><circle cx="176" cy="38" r="25"/><path d="M164 39l9 9 16-20"/></svg>
+      <h1>Educational Answer<br>Citation Auditor</h1><p>Verify. Validate. Learn.</p>
+    </div>
+  </section>
+  <section class="login-panel">
+    <div class="login-card">
+      <h2>Welcome Back!</h2><p class="muted">Sign in to continue</p>
+      <div class="role-toggle" role="tablist">
+        <button type="button" class="{{ 'active' if role=='teacher' else '' }}" data-role="teacher">Teacher</button>
+        <button type="button" class="{{ 'active' if role=='student' else '' }}" data-role="student">Student</button>
+      </div>
+      {% if error %}<div class="flash-error">{{ error }}</div>{% endif %}
+      <form id="login-form" method="post" action="/{{ role }}/login">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <label>Email Address</label><input type="email" name="email" required autocomplete="email" placeholder="you@example.com">
+        <label>Password</label><div class="password-wrap"><input id="password" type="password" name="password" required autocomplete="current-password" placeholder="Enter your password"><button type="button" id="show-password" aria-label="Show password">Show</button></div>
+        <button class="primary full" type="submit">Login</button>
+      </form>
+      <p class="login-footer">First time using EduCite? <a href="/register">Create a student account</a><br>Teacher account? Contact your administrator.</p>
+    </div>
+  </section>
+</main>
+<script src="/static/js/app.js"></script></body></html>

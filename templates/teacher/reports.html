@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block page_title %}Reports{% endblock %}
+{% block subtitle %}Review answers, source evidence, relevance, and AI-suggested marks{% endblock %}
+{% block content %}
+<section class="card">
+  <div id="reports-table" hx-get="/teacher/reports/table" hx-trigger="load, every 8s" hx-swap="innerHTML">
+    {% include 'teacher/_reports_table.html' %}
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,9 @@
+{% extends "base.html" %}{% block page_title %}Dashboard{% endblock %}{% block subtitle %}Manage your study material and review student submissions{% endblock %}
+{% block content %}
+<div class="stats-grid">
+{{ stat('Documents',docs) }}{{ stat('Questions',questions) }}{{ stat('Submissions',submissions) }}{{ stat('Awaiting Review',awaiting) }}
+</div>
+<section class="card"><div class="card-head"><h2>Average marks (AI-suggested)</h2></div>{% if avg is none %}<div class="empty-inline">No graded submissions yet</div>{% else %}<strong class="big-number">{{ avg }}%</strong>{% endif %}</section>
+<section class="card"><div class="card-head"><h2>Recent Activity</h2><a href="/teacher/reports">View All</a></div>
+{% if activities %}<div class="activity-list">{% for sub in activities %}<div class="activity"><span class="activity-dot"></span><div><strong>New student submission</strong><small>{{ sub.submitted_at.strftime('%d %b %Y, %H:%M') }}</small></div></div>{% endfor %}</div>{% else %}{{ empty('No recent activity','Student submissions and document activity will appear here.') }}{% endif %}
+</section>{% endblock %}

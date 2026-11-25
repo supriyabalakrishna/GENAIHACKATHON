@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block page_title %}Audit Review{% endblock %}
+{% block subtitle %}{{ student.name }} · {{ question.question_text }}{% endblock %}
+{% block content %}
+<section class="card">
+  <h2>Student's original answer</h2>
+  <p class="answer-box">{{ submission.answer_text }}</p>
+</section>
+
+<div class="detail-grid">
+  <section class="card">
+    <h2>Claim-by-claim evidence report</h2>
+    {% for c in claim_reports %}
+    <article class="claim-report">
+      <div class="claim-heading">
+        <strong>{{ c.claim_id }}. {{ c.claim_text }}</strong>
+        {{ badge(c.classification|replace('_',' ')|title) }}
+        {% if c.relevance == 'OUT_OF_CONTEXT' %}{{ badge('Out of context') }}{% endif %}
+        {% if c.review_required %}{{ badge('Needs review') }}{% endif %}
+      </div>
+      <p>{{ c.explanation }}</p>
+      {% for source in c.citations %}
+      <div class="source-evidence">
+        <strong>{{ source.document_name }} · {{ source.location }}</strong>
+        <blockquote>{{ source.text }}</blockquote>
+      </div>
+      {% else %}
+      <p class="notice">No source passage was verified for this claim.</p>
+      {% endfor %}
+    </article>
+    {% else %}
+    <p>No claims were extracted from this answer.</p>
+    {% endfor %}
+
+    <h2>Out-of-context answer claims</h2>
+    {% set unrelated = claim_reports|selectattr('relevance','equalto','OUT_OF_CONTEXT')|list %}
+    {% if unrelated %}
+      {% for c in unrelated %}<p class="notice"><strong>{{ c.claim_text }}</strong><br>{{ c.explanation }}</p>{% endfor %}
+    {% else %}
+      <p class="muted">The model did not flag any claim as clearly out of context.</p>
+    {% endif %}
+
+    <h2>Not supported by the assigned reading</h2>
+    <p class="muted">Insufficient evidence does not necessarily mean a claim is false.</p>
+    {% set unsupported = claim_reports|rejectattr('classification','equalto','SUPPORTED')|list %}
+    {% if unsupported %}
+      {% for c in unsupported %}<p class="notice"><strong>{{ c.claim_text }}</strong> · {{ c.classification|replace('_',' ')|title }}<br>{{ c.explanation }}</p>{% endfor %}
+    {% else %}
+      <p class="muted">No unsupported claims were identified.</p>
+    {% endif %}
+  </section>
+
+  <aside class="card">
+    <h2>Marks and feedback</h2>
+    {% if grade %}
+    <p class="marks-line"><strong>AI-suggested: {{ grade.ai_marks }} / {{ grade.max_marks }}</strong></p>
+    {% if grade.teacher_marks is not none %}
+    <p class="marks-line"><strong>Teacher final mark: {{ grade.teacher_marks }} / {{ grade.max_marks }}</strong></p>
+    {% endif %}
+    {% if grade.key_point_coverage %}
+      <h3>Key-point coverage</h3>
+      {% for c in grade.key_point_coverage %}<p>{{ badge(c.status|replace('_',' ')|title) }}</p>{% endfor %}
+      <p class="muted">Marks use source-supported key-point coverage. If coverage cannot be verified, provisional credit may be calculated from supported claims; unclear relevance is flagged for teacher review.</p>
+    {% else %}
+      {% set supported_count = claim_reports|selectattr('classification','equalto','SUPPORTED')|rejectattr('relevance','equalto','OUT_OF_CONTEXT')|selectattr('citations')|list|length %}
+      {% set contradicted_count = claim_reports|selectattr('classification','equalto','CONTRADICTED')|selectattr('relevance','equalto','ON_TOPIC')|list|length %}
+      <h3>Claim-based marks (no key points required)</h3>
+      <p>{{ supported_count }} supported / {{ claim_reports|length }} extracted claims.</p>
+      <p>{{ contradicted_count }} on-topic contradicted claim(s), with a {{ (contradiction_penalty * 100)|round(0)|int }}% max-mark penalty each. Unclear relevance earns provisional credit when supported by a cited passage and requires teacher review; out-of-context and insufficient-evidence claims earn no credit.</p>
+      <p class="muted">Formula: max marks × supported claims ÷ extracted claims − contradiction penalties, floored at zero and rounded to the nearest 0.5.</p>
+    {% endif %}
+    <h3>AI feedback</h3><p>{{ grade.ai_feedback }}</p>
+    <form method="post" action="/teacher/reports/{{ submission.id }}/override">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <label>Final marks</label>
+      <input type="number" name="teacher_marks" value="{{ grade.teacher_marks if grade.teacher_marks is not none else grade.ai_marks }}" step="0.5" min="0" max="{{ grade.max_marks }}" required>
+      <label>Teacher feedback</label>
+      <textarea name="teacher_feedback" rows="5">{{ grade.teacher_feedback or grade.ai_feedback }}</textarea>
+      <button class="primary">Save override</button>
+    </form>
+    <form method="post" action="/teacher/reports/{{ submission.id }}/release">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <button class="secondary" {% if grade.released_to_student %}disabled{% endif %}>{{ 'Released' if grade.released_to_student else 'Release to student' }}</button>
+    </form>
+    {% else %}
+    <p class="notice">The audit has not completed. No marks were generated.</p>
+    {% if submission.audit_status == 'failed' %}
+      <p class="error-text">{{ submission.error_message }}</p>
+      <form method="post" action="/teacher/reports/{{ submission.id }}/retry">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <button class="primary">Retry evaluation</button>
+      </form>
+    {% endif %}
+    {% endif %}
+  </aside>
+</div>
+{% endblock %}

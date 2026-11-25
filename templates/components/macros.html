@@ -1,0 +1,9 @@
+{% macro badge(status) %}
+<span class="badge badge-{{ status|lower|replace(' ','-') }}">{{ status }}</span>
+{% endmacro %}
+{% macro stat(title,value,detail='') %}
+<article class="stat-card"><div><p>{{ title }}</p><strong>{{ value if value is not none else '—' }}</strong>{% if detail %}<small>{{ detail }}</small>{% endif %}</div></article>
+{% endmacro %}
+{% macro empty(title,text,action='#',action_text='Continue') %}
+<div class="empty-state"><div class="empty-icon">✓</div><h3>{{ title }}</h3><p>{{ text }}</p>{% if action_text %}<a class="primary" href="{{ action }}">{{ action_text }}</a>{% endif %}</div>
+{% endmacro %}

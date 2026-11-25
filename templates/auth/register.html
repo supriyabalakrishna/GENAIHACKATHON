@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Create Student Account · EduCite</title><link rel="stylesheet" href="/static/css/styles.css"></head>
+<body class="login-body">
+<main class="register-shell">
+  <section class="register-card">
+    <a class="register-brand" href="/login">EduCite</a>
+    <h1>Create your student account</h1>
+    <p class="muted">First-time students can register here. Teacher accounts are created by an administrator.</p>
+    {% if error %}<div class="flash-error">{{ error }}</div>{% endif %}
+    <form method="post" action="/register">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <label for="name">Name</label><input id="name" name="name" required autocomplete="name">
+      <label for="email">Email Address</label><input id="email" type="email" name="email" required autocomplete="email">
+      <label for="password">Password</label><input id="password" type="password" name="password" minlength="10" required autocomplete="new-password">
+      <button class="primary full" type="submit">Create student account</button>
+    </form>
+    <p class="login-footer"><a href="/login?role=student">Already registered? Sign in</a></p>
+  </section>
+</main></body></html>

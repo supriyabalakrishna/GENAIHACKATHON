@@ -1,0 +1,7 @@
+{% extends "base.html" %}{% block page_title %}Documents{% endblock %}{% block subtitle %}Upload and index reading material{% endblock %}
+{% block content %}
+<form class="card upload-form" method="post" action="/teacher/documents/upload" enctype="multipart/form-data" id="upload-form"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><label class="dropzone"><strong>Drop files or choose documents</strong><span>PDF, DOCX, PPTX or TXT · Maximum {{ max_upload_mb }} MB per file</span><input type="file" name="files" multiple required accept=".pdf,.docx,.pptx,.txt"></label><button class="primary" type="submit">Upload</button><span id="upload-message" role="status"></span></form>
+<section class="card"><div class="card-head"><h2>Uploaded documents</h2><span class="muted" id="refresh-status">Statuses refresh automatically</span></div>
+<div id="documents-table" hx-get="/teacher/documents/status" hx-trigger="load, every 3s" hx-swap="innerHTML">
+{% include 'components/documents_table.html' %}
+</div></section>{% endblock %}

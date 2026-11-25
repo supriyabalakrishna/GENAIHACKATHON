@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block page_title %}Result Details{% endblock %}
+{% block subtitle %}{{ question.assignment.title }} · {{ question.question_text }}{% endblock %}
+{% block content %}
+<section class="card">
+  <h2>Your original answer</h2>
+  <p class="answer-box">{{ submission.answer_text }}</p>
+  <div class="export-actions">
+    <a class="secondary" href="/student/results/{{ submission.id }}/export.csv">Download CSV</a>
+    <a class="secondary" href="/student/results/{{ submission.id }}/export.json">Download JSON</a>
+  </div>
+</section>
+
+<section class="card">
+  <h2>Result and feedback</h2>
+  <div class="marks-line">
+    <strong>{{ grade.teacher_marks if grade.teacher_marks is not none else grade.ai_marks }} / {{ grade.max_marks }}</strong>
+    <span>{{ badge('AI-evaluated, reviewed by your teacher' if grade.teacher_marks is not none else 'AI-evaluated') }}</span>
+  </div>
+  <p>{{ grade.teacher_feedback or grade.ai_feedback }}</p>
+  {% if grade.key_point_coverage %}
+    <h3>Key-point coverage</h3>
+    {% for c in grade.key_point_coverage %}<p>{{ badge(c.status|replace('_',' ')|title) }}</p>{% endfor %}
+  {% else %}
+    <p class="muted">This answer was assessed against source evidence claim by claim; teacher key points were not required.</p>
+  {% endif %}
+</section>
+
+<section class="card">
+  <h2>Claim-by-claim source report</h2>
+  <p>Supported: {{ claim_reports|selectattr('classification','equalto','SUPPORTED')|list|length }} ·
+     Contradicted: {{ claim_reports|selectattr('classification','equalto','CONTRADICTED')|list|length }} ·
+     Insufficient evidence: {{ claim_reports|selectattr('classification','equalto','INSUFFICIENT_EVIDENCE')|list|length }}</p>
+  {% for c in claim_reports %}
+  <article class="claim-report">
+    <div class="claim-heading">
+      <strong>{{ c.claim_id }}. {{ c.claim_text }}</strong>
+      {{ badge(c.classification|replace('_',' ')|title) }}
+      {% if c.relevance == 'OUT_OF_CONTEXT' %}{{ badge('Out of context') }}{% endif %}
+      {% if c.review_required %}{{ badge('Needs review') }}{% endif %}
+    </div>
+    <p>{{ c.explanation }}</p>
+    {% for source in c.citations %}
+    <div class="source-evidence">
+      <strong>{{ source.document_name }} · {{ source.location }}</strong>
+      <blockquote>{{ source.text }}</blockquote>
+    </div>
+    {% else %}
+    <p class="notice">No supporting passage was verified in the assigned reading.</p>
+    {% endfor %}
+  </article>
+  {% else %}
+  <p>No factual claims were extracted from this answer.</p>
+  {% endfor %}
+</section>
+
+<section class="card">
+  <h2>Out-of-context answer claims</h2>
+  {% set unrelated = claim_reports|selectattr('relevance','equalto','OUT_OF_CONTEXT')|list %}
+  {% if unrelated %}
+    {% for c in unrelated %}<p class="notice"><strong>{{ c.claim_text }}</strong><br>{{ c.explanation }}</p>{% endfor %}
+  {% else %}
+    <p class="muted">The model did not flag any claim as clearly out of context.</p>
+  {% endif %}
+  <h3>Not supported by the assigned reading</h3>
+  <p class="muted">Unsupported does not necessarily mean incorrect; it means the assigned reading did not establish the claim.</p>
+  {% set unsupported = claim_reports|rejectattr('classification','equalto','SUPPORTED')|list %}
+  {% if unsupported %}
+    {% for c in unsupported %}<p class="notice"><strong>{{ c.claim_text }}</strong> · {{ c.classification|replace('_',' ')|title }}</p>{% endfor %}
+  {% else %}
+    <p class="muted">No unsupported claims were identified.</p>
+  {% endif %}
+</section>
+{% endblock %}

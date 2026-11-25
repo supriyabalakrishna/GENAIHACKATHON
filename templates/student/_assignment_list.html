@@ -1,0 +1,18 @@
+{% from 'components/macros.html' import empty %}
+{% if assignments %}
+<div class="assignment-list">
+  {% for a in assignments %}
+  <article>
+    <div class="assignment-icon">A</div>
+    <div>
+      <strong>{{ a.title }}</strong>
+      <p>{{ a.description or 'Reading assignment' }}</p>
+      <small>Due {{ a.due_date.strftime('%d %b %Y') if a.due_date else 'No due date' }}</small>
+    </div>
+    <a class="secondary" href="/student/assignments/{{ a.id }}">View Questions</a>
+  </article>
+  {% endfor %}
+</div>
+{% else %}
+{{ empty('No published assignments','Your teacher has not published an assignment yet.') }}
+{% endif %}

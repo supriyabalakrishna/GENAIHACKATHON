@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block page_title %}My Results{% endblock %}
+{% block subtitle %}Released marks and evidence-backed feedback{% endblock %}
+{% block content %}
+<section class="card">
+  <div id="results-list" hx-get="/student/results/available" hx-trigger="load, every 8s" hx-swap="innerHTML">
+    {% include 'student/_results_list.html' %}
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,2 @@
+{% extends "base.html" %}{% block page_title %}My Assignments{% endblock %}{% block subtitle %}Published questions and reading material{% endblock %}
+{% block content %}<section class="card"><div id="available-assignments" hx-get="/student/assignments/available" hx-trigger="load, every 10s" hx-swap="innerHTML">{% include 'student/_assignment_list.html' %}</div></section>{% endblock %}
